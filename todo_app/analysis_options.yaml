@@ -1,1 +1,12 @@
 include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Resource management
+    close_sinks: true
+    cancel_subscriptions: true
+    
+    # Additional helpful rules
+    always_declare_return_types: true
+    prefer_final_fields: true
+    unnecessary_brace_in_string_interps: true
