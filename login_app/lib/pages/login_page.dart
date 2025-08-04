@@ -1,13 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login_app/components/my_button.dart';
 import 'package:login_app/components/my_textfield.dart';
 import 'package:login_app/components/square_tile.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   // Controllers for the text fields
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
@@ -35,10 +41,7 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 25),
 
               // username field
-              MyTextField(
-                hintText: 'Username',
-                controller: _usernameController,
-              ),
+              MyTextField(hintText: 'Email', controller: _emailController),
 
               const SizedBox(height: 10),
 
@@ -136,12 +139,44 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void _signUserIn() {
-    // Logic to sign in the user
-    String username = _usernameController.text;
-    String password = _passwordController.text;
+  void _signUserIn() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
 
-    // Here you would typically call an authentication service
-    print('Username: $username, Password: $password');
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      } // Close the loading dialog
+    } on FirebaseAuthException catch (e) {
+      _displayErrorMessage(e);
+    }
+  }
+
+  void _displayErrorMessage(FirebaseAuthException e) {
+    String? errorMessage;
+    switch (e.code) {
+      case 'user-not-found':
+        errorMessage = 'No user found for that email.';
+        break;
+      case 'wrong-password':
+        errorMessage = 'Wrong password provided for that user.';
+        break;
+      default:
+        errorMessage = 'Error: ${e.message}';
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
   }
 }
