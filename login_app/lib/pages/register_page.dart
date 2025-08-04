@@ -4,19 +4,20 @@ import 'package:login_app/components/my_button.dart';
 import 'package:login_app/components/my_textfield.dart';
 import 'package:login_app/components/square_tile.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.onTap});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key, required this.onTap});
 
   final VoidCallback onTap;
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   // Controllers for the text fields
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 // welcome message
                 Text(
-                  'Welcome back!',
+                  'Create your account here',
                   style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
                 ),
 
@@ -57,24 +58,17 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 10),
 
-                //forgot password
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.grey.shade600),
-                      ),
-                    ],
-                  ),
+                // confirm password field
+                MyTextField(
+                  hintText: 'Confirm Password',
+                  controller: _confirmPasswordController,
+                  obscureText: true,
                 ),
 
                 const SizedBox(height: 25),
 
-                // sign in button
-                MyButton(text: 'Sign In', onPressed: _signUserIn),
+                // sign up button
+                MyButton(text: 'Sign Up', onPressed: _signUserUp),
 
                 const SizedBox(height: 50),
 
@@ -120,16 +114,16 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 50),
 
-                // register now
+                // already a member?
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Not a member?'),
+                    Text('Already a member?'),
                     const SizedBox(width: 4),
                     GestureDetector(
-                      onTap: widget.onTap,
+                      onTap: () => widget.onTap,
                       child: Text(
-                        'Register now',
+                        'Login now',
                         style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
@@ -146,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _signUserIn() async {
+  void _signUserUp() async {
     showDialog(
       context: context,
       builder: (context) {
@@ -155,7 +149,14 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      if (_passwordController.text != _confirmPasswordController.text) {
+        throw FirebaseAuthException(
+          code: 'password-mismatch',
+          message: 'Passwords do not match.',
+        );
+      }
+
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
@@ -171,20 +172,26 @@ class _LoginPageState extends State<LoginPage> {
   void _displayErrorMessage(FirebaseAuthException e) {
     String? errorMessage;
     switch (e.code) {
-      case 'user-not-found':
-        errorMessage = 'No user found for that email.';
+      case 'email-already-in-use':
+        errorMessage =
+            'The email address is already in use by another account.';
         break;
-      case 'wrong-password':
-        errorMessage = 'Wrong password provided for that user.';
+      case 'invalid-email':
+        errorMessage = 'The email address is not valid.';
+        break;
+      case 'operation-not-allowed':
+        errorMessage = 'Email/password accounts are not enabled.';
+        break;
+      case 'weak-password':
+        errorMessage = 'The password is too weak.';
         break;
       default:
         errorMessage = 'Error: ${e.message}';
     }
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(errorMessage)));
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
   }
 }
