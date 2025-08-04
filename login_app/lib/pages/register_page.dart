@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:login_app/components/my_button.dart';
 import 'package:login_app/components/my_textfield.dart';
 import 'package:login_app/components/square_tile.dart';
+import 'package:login_app/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key, required this.onTap});
@@ -106,9 +107,15 @@ class _RegisterPageState extends State<RegisterPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SquareTile(imagePath: 'lib/images/google.png'),
+                    SquareTile(
+                      imagePath: 'lib/images/google.png',
+                      onTap: () => AuthService().signInWithGoogle(),
+                    ),
                     SizedBox(width: 25),
-                    SquareTile(imagePath: 'lib/images/apple.png'),
+                    SquareTile(
+                      imagePath: 'lib/images/apple.png',
+                      onTap: () => {}, //AuthService().signInWithApple(),
+                    ),
                   ],
                 ),
 
@@ -121,7 +128,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Text('Already a member?'),
                     const SizedBox(width: 4),
                     GestureDetector(
-                      onTap: () => widget.onTap,
+                      onTap: widget.onTap,
                       child: Text(
                         'Login now',
                         style: TextStyle(
