@@ -1,0 +1,26 @@
+import 'package:flutter/material.dart';
+
+class LightMode {
+  static ThemeData get theme {
+    return ThemeData(
+      colorScheme: ColorScheme(
+        brightness: Brightness.light,
+        primary: Colors.grey.shade500,
+        onPrimary: Colors.white,
+        secondary: Colors.grey.shade200,
+        onSecondary: Colors.black,
+        surface: Colors.grey.shade300,
+        onSurface: Colors.black,
+        error: Colors.red,
+        onError: Colors.white,
+        tertiary: Colors.white,
+        inversePrimary: Colors.grey.shade900,
+      ),
+      brightness: Brightness.light,
+      primaryColor: Colors.blue[800],
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: AppBarTheme(backgroundColor: Colors.blue[800], elevation: 0),
+      textTheme: TextTheme(),
+    );
+  }
+}
