@@ -1,5 +1,6 @@
 import 'package:chat_app/components/my_button.dart';
 import 'package:chat_app/components/my_textfield.dart';
+import 'package:chat_app/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
@@ -54,7 +55,7 @@ class LoginPage extends StatelessWidget {
             const SizedBox(height: 25),
 
             // login button
-            MyButton(text: 'Login', onTap: _login),
+            MyButton(text: 'Login', onTap: () => _login(context)),
 
             const SizedBox(height: 25),
 
@@ -86,5 +87,31 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void _login() {}
+  void _login(BuildContext context) async {
+    final authService = AuthService();
+    try {
+      await authService.signInWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Login Failed'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 }
