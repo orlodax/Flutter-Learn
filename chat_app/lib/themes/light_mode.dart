@@ -17,9 +17,9 @@ class LightMode {
         inversePrimary: Colors.grey.shade900,
       ),
       brightness: Brightness.light,
-      primaryColor: Colors.blue[800],
+      primaryColor: Colors.grey[500],
       scaffoldBackgroundColor: Colors.white,
-      appBarTheme: AppBarTheme(backgroundColor: Colors.blue[800], elevation: 0),
+      appBarTheme: AppBarTheme(backgroundColor: Colors.grey[500], elevation: 0),
       textTheme: TextTheme(),
     );
   }

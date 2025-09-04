@@ -1,3 +1,4 @@
+import 'package:chat_app/auth/auth_service.dart';
 import 'package:chat_app/components/my_button.dart';
 import 'package:chat_app/components/my_textfield.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class RegisterPage extends StatelessWidget {
             const SizedBox(height: 25),
 
             // register button
-            MyButton(text: 'Register', onTap: _register),
+            MyButton(text: 'Register', onTap: () => _register(context)),
 
             const SizedBox(height: 25),
 
@@ -97,5 +98,51 @@ class RegisterPage extends StatelessWidget {
     );
   }
 
-  void _register() {}
+  void _register(BuildContext context) async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Password Mismatch'),
+            content: Text('Double check your passwords.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    try {
+      await AuthService().registerWithEmailAndPassword(
+        _emailController.text,
+        _passwordController.text,
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Register Failed'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 }
